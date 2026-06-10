@@ -6,6 +6,10 @@ CRM, and growth** — built to feel like Stripe, Linear, and Ramp, not a spreads
 
 > Theme: clean ivory background · charcoal accents · gold highlights · fully mobile responsive.
 
+**▶ Live demo:** https://jsoeh.github.io/beyond-concierge-os/
+
+![Beyond Concierge Executive OS — walkthrough](beyond-concierge-walkthrough.gif)
+
 ---
 
 ## What's inside
