@@ -7,12 +7,10 @@ import {
 import { Card, KpiCard, PageIntro, SectionHeader, Segmented, Delta, ProgressBar } from "@/components/ui";
 import { DualArea, MixDonut, TrendArea, HBars } from "@/components/charts";
 import { usd, usdCompact, num } from "@/lib/format";
-import {
-  periods, type Period, revenueByBucketForPeriod, totalRevenueForPeriod,
-  serviceMix, trend, financials, kpis,
-} from "@/data/revenue";
+import { periods, type Period, type RevenueModel } from "@/data/revenue";
+import { useRevenue } from "@/store/useData";
 
-const plRows: { label: string; key: keyof typeof financials; sign: 1 | -1; strong?: boolean }[] = [
+const plRows: { label: string; key: keyof RevenueModel["financials"]; sign: 1 | -1; strong?: boolean }[] = [
   { label: "Gross Revenue", key: "grossRevenue", sign: 1, strong: true },
   { label: "Credit Card Fees", key: "ccFees", sign: -1 },
   { label: "Processing Fees", key: "processingFees", sign: -1 },
@@ -27,8 +25,10 @@ const plRows: { label: string; key: keyof typeof financials; sign: 1 | -1; stron
 
 export default function ExecutiveSnapshot() {
   const [period, setPeriod] = useState<Period>("This Month");
-  const byBucket = revenueByBucketForPeriod(period);
-  const totalRev = totalRevenueForPeriod(period);
+  const rev = useRevenue();
+  const { serviceMix, trend, financials, kpis } = rev;
+  const byBucket = rev.bucketsForPeriod(period);
+  const totalRev = rev.revenueForPeriod(period);
   const maxBucket = Math.max(...byBucket.map((b) => b.revenue));
 
   return (

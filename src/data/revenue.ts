@@ -1,6 +1,6 @@
-import { services, totalMonthlyRevenue, totalMonthlyProfit } from "./services";
+import { type Service, services as baseComputedServices } from "./services";
 
-// ── Revenue grouped into the 7 reporting buckets ────────────────────────────
+// ── Reporting buckets ───────────────────────────────────────────────────────
 export type RevenueBucket =
   | "ThinWorks"
   | "Botox"
@@ -24,20 +24,6 @@ const bucketMap: Record<string, RevenueBucket> = {
   membership: "Memberships",
 };
 
-export const revenueByBucketMonthly: { bucket: RevenueBucket; revenue: number }[] =
-  Object.values(
-    services.reduce<Record<string, { bucket: RevenueBucket; revenue: number }>>(
-      (acc, s) => {
-        const bucket = bucketMap[s.id] ?? "Other Services";
-        acc[bucket] ??= { bucket, revenue: 0 };
-        acc[bucket].revenue += s.monthlyRevenue;
-        return acc;
-      },
-      {},
-    ),
-  ).sort((a, b) => b.revenue - a.revenue);
-
-// Period multipliers relative to a month (with realistic pacing).
 export const periods = ["Today", "This Week", "This Month", "This Quarter", "This Year"] as const;
 export type Period = (typeof periods)[number];
 
@@ -46,25 +32,10 @@ const periodFactor: Record<Period, number> = {
   "This Week": 1 / 4.1,
   "This Month": 1,
   "This Quarter": 2.94,
-  "This Year": 10.8, // partial-year pacing, not a flat 12x
+  "This Year": 10.8,
 };
 
-export const revenueByBucketForPeriod = (period: Period) =>
-  revenueByBucketMonthly.map((r) => ({
-    bucket: r.bucket,
-    revenue: Math.round(r.revenue * periodFactor[period]),
-  }));
-
-export const totalRevenueForPeriod = (period: Period) =>
-  Math.round(totalMonthlyRevenue * periodFactor[period]);
-
-// ── 12-month trend (deterministic, gently accelerating) ─────────────────────
-const monthLabels = [
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-];
-
-// growth curve from 0.62 → 1.0 of current monthly run-rate
+const monthLabels = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 const growthCurve = [0.62, 0.66, 0.69, 0.73, 0.78, 0.8, 0.83, 0.86, 0.9, 0.93, 0.96, 1.0];
 
 export interface TrendPoint {
@@ -75,82 +46,140 @@ export interface TrendPoint {
   newCustomers: number;
 }
 
-export const trend: TrendPoint[] = monthLabels.map((month, i) => {
-  const f = growthCurve[i];
-  const revenue = Math.round(totalMonthlyRevenue * f);
-  const margin = 0.41 + i * 0.004; // margin improves slightly over time
-  const profit = Math.round(revenue * margin);
-  const customers = Math.round(820 * f + 180);
-  const newCustomers = Math.round(customers * (0.34 - i * 0.006));
-  return { month, revenue, profit, customers, newCustomers };
-});
+// ── Overridable P&L inputs (Owner Studio) ───────────────────────────────────
+export interface PnlInputs {
+  payroll: number;
+  contractorCosts: number;
+  nurseCosts: number;
+  marketingCosts: number;
+  ccRate: number; // card fee rate on gross
+  refundRate: number; // refunds as % of gross
+  txPerMonth: number; // transactions / month (for avg ticket)
+}
 
-export const current = trend[trend.length - 1];
-export const prior = trend[trend.length - 2];
+export const defaultPnl: PnlInputs = {
+  payroll: 71500,
+  contractorCosts: 18400,
+  nurseCosts: 39200,
+  marketingCosts: 27600,
+  ccRate: 0.025,
+  refundRate: 0.011,
+  txPerMonth: 980,
+};
+
+export const pnlFields: { key: keyof PnlInputs; label: string; kind: "money" | "pct" | "count" }[] = [
+  { key: "payroll", label: "Payroll", kind: "money" },
+  { key: "contractorCosts", label: "Contractor Costs", kind: "money" },
+  { key: "nurseCosts", label: "Nurse Costs", kind: "money" },
+  { key: "marketingCosts", label: "Marketing Costs", kind: "money" },
+  { key: "ccRate", label: "Card Fee Rate", kind: "pct" },
+  { key: "refundRate", label: "Refund Rate", kind: "pct" },
+  { key: "txPerMonth", label: "Transactions / mo", kind: "count" },
+];
 
 export const growthPct = (curr: number, prev: number) =>
   +(((curr - prev) / prev) * 100).toFixed(1);
 
-// ── Financial summary (monthly P&L) ─────────────────────────────────────────
-const grossRevenue = totalMonthlyRevenue;
-const ccFees = Math.round(grossRevenue * 0.025);
-const processingFees = Math.round(grossRevenue * 0.006);
-const refunds = Math.round(grossRevenue * 0.011);
-const netRevenue = grossRevenue - ccFees - processingFees - refunds;
-const payroll = 71500;
-const contractorCosts = 18400;
-const nurseCosts = 39200;
-const inventoryCosts = Math.round(
-  services.reduce((a, s) => a + s.productCost * s.monthlyVolume, 0),
-);
-const marketingCosts = 27600;
-const netProfit =
-  netRevenue -
-  payroll -
-  contractorCosts -
-  nurseCosts -
-  inventoryCosts -
-  marketingCosts;
-const netMargin = +((netProfit / grossRevenue) * 100).toFixed(1);
+export interface RevenueModel {
+  revenueByBucketMonthly: { bucket: RevenueBucket; revenue: number }[];
+  serviceMix: { name: string; value: number }[];
+  trend: TrendPoint[];
+  current: TrendPoint;
+  prior: TrendPoint;
+  financials: ReturnType<typeof buildFinancials>;
+  kpis: ReturnType<typeof buildKpis>;
+  totalMonthlyRevenue: number;
+  totalMonthlyProfit: number;
+  bucketsForPeriod: (p: Period) => { bucket: RevenueBucket; revenue: number }[];
+  revenueForPeriod: (p: Period) => number;
+}
 
-export const financials = {
-  grossRevenue,
-  netRevenue,
-  ccFees,
-  processingFees,
-  refunds,
-  payroll,
-  contractorCosts,
-  nurseCosts,
-  inventoryCosts,
-  marketingCosts,
-  netProfit,
-  netMargin,
-};
+function buildFinancials(services: Service[], totalMonthlyRevenue: number, pnl: PnlInputs) {
+  const grossRevenue = totalMonthlyRevenue;
+  const ccFees = Math.round(grossRevenue * pnl.ccRate);
+  const processingFees = Math.round(grossRevenue * 0.006);
+  const refunds = Math.round(grossRevenue * pnl.refundRate);
+  const netRevenue = grossRevenue - ccFees - processingFees - refunds;
+  const inventoryCosts = Math.round(
+    services.reduce((a, s) => a + s.productCost * s.monthlyVolume, 0),
+  );
+  const netProfit =
+    netRevenue - pnl.payroll - pnl.contractorCosts - pnl.nurseCosts - inventoryCosts - pnl.marketingCosts;
+  const netMargin = grossRevenue ? +((netProfit / grossRevenue) * 100).toFixed(1) : 0;
+  return {
+    grossRevenue, netRevenue, ccFees, processingFees, refunds,
+    payroll: pnl.payroll, contractorCosts: pnl.contractorCosts, nurseCosts: pnl.nurseCosts,
+    inventoryCosts, marketingCosts: pnl.marketingCosts, netProfit, netMargin,
+  };
+}
 
-// ── KPI cards ───────────────────────────────────────────────────────────────
-const customerCount = current.customers;
-const returningCustomers = customerCount - current.newCustomers;
-const avgTicket = Math.round(grossRevenue / 980); // ~980 transactions/mo
+function buildKpis(
+  trend: TrendPoint[],
+  financials: ReturnType<typeof buildFinancials>,
+  totalMonthlyProfit: number,
+  pnl: PnlInputs,
+) {
+  const current = trend[trend.length - 1];
+  const prior = trend[trend.length - 2];
+  const customerCount = current.customers;
+  return {
+    revenue: financials.grossRevenue,
+    revenueDelta: growthPct(current.revenue, prior.revenue),
+    profit: totalMonthlyProfit,
+    profitDelta: growthPct(current.profit, prior.profit),
+    margin: financials.netMargin,
+    marginDelta: 1.4,
+    avgTicket: Math.round(financials.grossRevenue / Math.max(pnl.txPerMonth, 1)),
+    avgTicketDelta: 4.6,
+    customerCount,
+    customerDelta: growthPct(current.customers, prior.customers),
+    returningCustomers: customerCount - current.newCustomers,
+    newCustomers: current.newCustomers,
+    revenuePerCustomer: Math.round(financials.grossRevenue / Math.max(customerCount, 1)),
+    revenuePerCustomerDelta: 3.1,
+  };
+}
 
-export const kpis = {
-  revenue: grossRevenue,
-  revenueDelta: growthPct(current.revenue, prior.revenue),
-  profit: totalMonthlyProfit,
-  profitDelta: growthPct(current.profit, prior.profit),
-  margin: netMargin,
-  marginDelta: 1.4,
-  avgTicket,
-  avgTicketDelta: 4.6,
-  customerCount,
-  customerDelta: growthPct(current.customers, prior.customers),
-  returningCustomers,
-  newCustomers: current.newCustomers,
-  revenuePerCustomer: Math.round(grossRevenue / customerCount),
-  revenuePerCustomerDelta: 3.1,
-};
+export function computeRevenue(services: Service[], pnl: PnlInputs = defaultPnl): RevenueModel {
+  const totalMonthlyRevenue = services.reduce((a, s) => a + s.monthlyRevenue, 0);
+  const totalMonthlyProfit = services.reduce((a, s) => a + s.monthlyProfit, 0);
 
-export const serviceMix = revenueByBucketMonthly.map((r) => ({
-  name: r.bucket,
-  value: r.revenue,
-}));
+  const byBucket = Object.values(
+    services.reduce<Record<string, { bucket: RevenueBucket; revenue: number }>>((acc, s) => {
+      const bucket = bucketMap[s.id] ?? "Other Services";
+      acc[bucket] ??= { bucket, revenue: 0 };
+      acc[bucket].revenue += s.monthlyRevenue;
+      return acc;
+    }, {}),
+  ).sort((a, b) => b.revenue - a.revenue);
+
+  const trend: TrendPoint[] = monthLabels.map((month, i) => {
+    const f = growthCurve[i];
+    const revenue = Math.round(totalMonthlyRevenue * f);
+    const margin = 0.41 + i * 0.004;
+    const profit = Math.round(revenue * margin);
+    const customers = Math.round(820 * f + 180);
+    const newCustomers = Math.round(customers * (0.34 - i * 0.006));
+    return { month, revenue, profit, customers, newCustomers };
+  });
+
+  const financials = buildFinancials(services, totalMonthlyRevenue, pnl);
+  const kpis = buildKpis(trend, financials, totalMonthlyProfit, pnl);
+
+  return {
+    revenueByBucketMonthly: byBucket,
+    serviceMix: byBucket.map((b) => ({ name: b.bucket, value: b.revenue })),
+    trend,
+    current: trend[trend.length - 1],
+    prior: trend[trend.length - 2],
+    financials,
+    kpis,
+    totalMonthlyRevenue,
+    totalMonthlyProfit,
+    bucketsForPeriod: (p) => byBucket.map((b) => ({ bucket: b.bucket, revenue: Math.round(b.revenue * periodFactor[p]) })),
+    revenueForPeriod: (p) => Math.round(totalMonthlyRevenue * periodFactor[p]),
+  };
+}
+
+// Static default model (base prices) — handy for non-reactive consumers/tests.
+export const baseRevenue = computeRevenue(baseComputedServices, defaultPnl);

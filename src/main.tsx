@@ -15,6 +15,7 @@ const AdvertisingCenter = lazy(() => import("@/modules/AdvertisingCenter"));
 const CrmPartnerships = lazy(() => import("@/modules/CrmPartnerships"));
 const GrowthPlanner = lazy(() => import("@/modules/GrowthPlanner"));
 const AiAdvisor = lazy(() => import("@/modules/AiAdvisor"));
+const OwnerStudio = lazy(() => import("@/modules/OwnerStudio")); // TEMPORARY tab
 
 const router = createHashRouter([
   {
@@ -32,6 +33,7 @@ const router = createHashRouter([
       { path: "ads", element: <AdvertisingCenter /> },
       { path: "crm", element: <CrmPartnerships /> },
       { path: "growth", element: <GrowthPlanner /> },
+      { path: "studio", element: <OwnerStudio /> }, // TEMPORARY tab — remove with nav entry
     ],
   },
 ]);

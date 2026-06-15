@@ -10,6 +10,7 @@ import {
   Megaphone,
   Handshake,
   CalendarRange,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +35,9 @@ export const nav: NavItem[] = [
   { to: "/ads", label: "Advertising", short: "Ads", icon: Megaphone, group: "Growth & Demand" },
   { to: "/crm", label: "CRM & Partnerships", short: "CRM", icon: Handshake, group: "Growth & Demand" },
   { to: "/growth", label: "90-Day Growth Plan", short: "Growth", icon: CalendarRange, group: "Growth & Demand" },
+  // ── TEMPORARY: Owner Studio. Remove this single line + the /studio route in
+  //    main.tsx to take the tab away once changes are finalized. ──────────────
+  { to: "/studio", label: "Owner Studio", short: "Studio", icon: Wand2, group: "Owner · Temporary" },
 ];
 
 export const navGroups = [...new Set(nav.map((n) => n.group))];

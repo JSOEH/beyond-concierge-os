@@ -207,3 +207,50 @@ export const totalMonthlyProfit = services.reduce(
   (a, s) => a + s.monthlyProfit,
   0,
 );
+
+// ── Override layer (Owner Studio live pricing) ──────────────────────────────
+export const baseServices: ServiceInput[] = raw;
+
+export type EditableField =
+  | "retail"
+  | "productCost"
+  | "nurseCost"
+  | "laborCost"
+  | "monthlyVolume";
+
+export const editableFields: { key: EditableField; label: string; money: boolean }[] = [
+  { key: "retail", label: "Retail", money: true },
+  { key: "productCost", label: "Product", money: true },
+  { key: "nurseCost", label: "Nurse", money: true },
+  { key: "laborCost", label: "Labor", money: true },
+  { key: "monthlyVolume", label: "Volume/mo", money: false },
+];
+
+export type ServiceOverrides = Record<string, Partial<Record<EditableField, number>>>;
+
+export interface ServiceModel {
+  services: Service[];
+  rankByProfit: Service[];
+  rankByMargin: Service[];
+  rankByVolume: Service[];
+  lowestMargin: Service[];
+  underperformers: Service[];
+  totalMonthlyRevenue: number;
+  totalMonthlyProfit: number;
+}
+
+export function deriveServices(overrides: ServiceOverrides = {}): ServiceModel {
+  const list = baseServices.map((s) =>
+    computeService({ ...s, ...(overrides[s.id] ?? {}) }),
+  );
+  return {
+    services: list,
+    rankByProfit: [...list].sort((a, b) => b.monthlyProfit - a.monthlyProfit),
+    rankByMargin: [...list].sort((a, b) => b.margin - a.margin),
+    rankByVolume: [...list].sort((a, b) => b.monthlyVolume - a.monthlyVolume),
+    lowestMargin: [...list].sort((a, b) => a.margin - b.margin),
+    underperformers: list.filter((s) => s.margin < MARGIN_FLOOR),
+    totalMonthlyRevenue: list.reduce((a, s) => a + s.monthlyRevenue, 0),
+    totalMonthlyProfit: list.reduce((a, s) => a + s.monthlyProfit, 0),
+  };
+}

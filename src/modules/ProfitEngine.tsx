@@ -2,10 +2,8 @@ import { useMemo, useState } from "react";
 import { Gem, TrendingUp, Percent, Flame, AlertTriangle, ArrowUpDown } from "lucide-react";
 import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar } from "@/components/ui";
 import { usd, num, pct } from "@/lib/format";
-import {
-  services, type Service, rankByProfit, rankByMargin, rankByVolume, lowestMargin,
-  totalMonthlyRevenue, totalMonthlyProfit, MARGIN_FLOOR,
-} from "@/data/services";
+import { type Service, MARGIN_FLOOR } from "@/data/services";
+import { useServices } from "@/store/useData";
 
 type SortKey = "name" | "retail" | "totalCost" | "grossProfit" | "margin" | "monthlyVolume" | "monthlyRevenue" | "monthlyProfit";
 
@@ -55,6 +53,7 @@ function RankCard({ title, icon: Icon, rows, value, tone }: {
 }
 
 export default function ProfitEngine() {
+  const { services, rankByProfit, rankByMargin, rankByVolume, lowestMargin, totalMonthlyRevenue, totalMonthlyProfit } = useServices();
   const [sort, setSort] = useState<SortKey>("monthlyProfit");
   const [dir, setDir] = useState<-1 | 1>(-1);
   const [selectedId, setSelectedId] = useState<string>(rankByProfit[0].id);
@@ -65,9 +64,9 @@ export default function ProfitEngine() {
       if (typeof av === "string") return dir * av.localeCompare(bv as string);
       return dir * ((av as number) - (bv as number));
     });
-  }, [sort, dir]);
+  }, [services, sort, dir]);
 
-  const selected = services.find((s) => s.id === selectedId)!;
+  const selected = services.find((s) => s.id === selectedId) ?? services[0];
   const blendedMargin = +((totalMonthlyProfit / totalMonthlyRevenue) * 100).toFixed(1);
 
   const breakdown = [
