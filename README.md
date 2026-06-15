@@ -113,6 +113,17 @@ so it's safe to share a live preview without exposing real numbers.
 | `src/data/seo.ts` · `social.ts` · `ads.ts` · `crm.ts` · `growth.ts` | Each respective module |
 | `src/data/advisor.ts` | Advisor logic (reads from the others) |
 
+### Owner Studio (temporary tab)
+The **Owner Studio** tab (last item in the sidebar) is a private control room for the owner:
+- **Live Pricing** — type real prices and P&L inputs; the Profit Engine and Executive Snapshot
+  recompute instantly. Saved in the owner's browser (`localStorage`), not shared — send them to
+  the team to bake in permanently (edit `src/data/*`).
+- **Change Requests** — log fixes/changes; each has a **Copy brief** and **Email all to team**
+  handoff so the team can ship the update and redeploy.
+
+**To remove the tab when finished:** delete the one marked line in `src/nav.ts` and the
+`/studio` route line in `src/main.tsx` (both tagged `TEMPORARY`), then rebuild + redeploy.
+
 ### Going live with a real backend (optional)
 `docs/SCHEMA.sql` contains a Postgres schema that mirrors this data model 1:1. Wire it to a
 backend (Supabase, Postgres, or your EMR/POS exports) and replace the `src/data/*` imports
