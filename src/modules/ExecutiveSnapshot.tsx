@@ -3,7 +3,7 @@ import {
   DollarSign, TrendingUp, Percent, Receipt, Users, UserPlus,
   Repeat, Gem,
 } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Segmented, Delta, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Segmented, Delta, ProgressBar, EmptyState } from "@/components/ui";
 import { DualArea, MixDonut, TrendArea, HBars } from "@/components/charts";
 import { usd, usdCompact, num } from "@/lib/format";
 import { periods, type Period, type RevenueModel } from "@/data/revenue";
@@ -29,6 +29,19 @@ export default function ExecutiveSnapshot() {
   const byBucket = rev.bucketsForPeriod(period);
   const totalRev = rev.revenueForPeriod(period);
   const maxBucket = Math.max(...byBucket.map((b) => b.revenue));
+
+  if (rev.totalMonthlyRevenue === 0) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Executive Snapshot"
+          title="Good morning. Here's the whole business."
+          description="One source of truth across finance, operations, marketing, and growth."
+        />
+        <EmptyState icon={DollarSign} title="No revenue data yet" message="Enter your real service prices, costs, and monthly volumes in Owner Studio → Live Pricing (or send them via the intake form) and this snapshot fills in: revenue by service, full P&L, KPIs, and trends." hint="Add your prices in Owner Studio → Live Pricing" />
+      </>
+    );
+  }
 
   return (
     <>

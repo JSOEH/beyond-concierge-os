@@ -4,7 +4,7 @@ import {
   RefreshCw, CheckCircle2, Clock, XCircle, Bookmark, MessageCircle, Send,
 } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, EmptyState } from "@/components/ui";
 import { num, compact, pct } from "@/lib/format";
 import { palette, tooltipStyle } from "@/lib/theme";
 import {
@@ -26,6 +26,19 @@ export default function SocialCenter() {
   const totalFollowers = channels.reduce((a, c) => a + c.followers, 0);
   const avgEng = +(channels.reduce((a, c) => a + c.engagement, 0) / channels.length).toFixed(1);
   const totalLeads = channels.reduce((a, c) => a + c.leads, 0);
+
+  if (!channels.length) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Social Media Command Center"
+          title="Reach, engagement, and content — in one place."
+          description="Every channel's health, your content calendar, and an AI assistant that hands you the next week of posts."
+        />
+        <EmptyState icon={Share2} title="No channels connected" message="Connect Instagram, TikTok, Facebook, YouTube, and LinkedIn (or send the numbers) to see follower growth, engagement, and channel health. The AI content assistant works regardless — try it from the live tab." hint="Connect channels or send the data" />
+      </>
+    );
+  }
 
   return (
     <>

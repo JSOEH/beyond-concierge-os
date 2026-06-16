@@ -58,13 +58,13 @@ export interface PnlInputs {
 }
 
 export const defaultPnl: PnlInputs = {
-  payroll: 71500,
-  contractorCosts: 18400,
-  nurseCosts: 39200,
-  marketingCosts: 27600,
-  ccRate: 0.025,
-  refundRate: 0.011,
-  txPerMonth: 980,
+  payroll: 0,
+  contractorCosts: 0,
+  nurseCosts: 0,
+  marketingCosts: 0,
+  ccRate: 0.029,
+  refundRate: 0,
+  txPerMonth: 0,
 };
 
 export const pnlFields: { key: keyof PnlInputs; label: string; kind: "money" | "pct" | "count" }[] = [
@@ -153,13 +153,14 @@ export function computeRevenue(services: Service[], pnl: PnlInputs = defaultPnl)
     }, {}),
   ).sort((a, b) => b.revenue - a.revenue);
 
+  const hasData = totalMonthlyRevenue > 0;
   const trend: TrendPoint[] = monthLabels.map((month, i) => {
     const f = growthCurve[i];
     const revenue = Math.round(totalMonthlyRevenue * f);
     const margin = 0.41 + i * 0.004;
     const profit = Math.round(revenue * margin);
-    const customers = Math.round(820 * f + 180);
-    const newCustomers = Math.round(customers * (0.34 - i * 0.006));
+    const customers = hasData ? Math.round(820 * f + 180) : 0;
+    const newCustomers = hasData ? Math.round(customers * (0.34 - i * 0.006)) : 0;
     return { month, revenue, profit, customers, newCustomers };
   });
 

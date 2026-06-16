@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import {
   Sparkles, AlertTriangle, Lightbulb, Wand2, ArrowRight, FileText, Flag, CheckCircle2,
 } from "lucide-react";
-import { Card, PageIntro, SectionHeader, Badge } from "@/components/ui";
-import { issues, opportunities, recommendations, weeklyBrief, type Insight } from "@/data/advisor";
+import { Card, PageIntro, SectionHeader, Badge, EmptyState } from "@/components/ui";
+import { issues, opportunities, recommendations, weeklyBrief, insights, type Insight } from "@/data/advisor";
 
 const moduleRoute: Record<string, string> = {
   Inventory: "/inventory", "GLP-1": "/glp1", "Website & SEO": "/seo", Advertising: "/ads",
@@ -31,6 +31,18 @@ function InsightCard({ insight }: { insight: Insight }) {
 }
 
 export default function AiAdvisor() {
+  if (insights.length === 0 && weeklyBrief.points.length === 0) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="AI Advisor"
+          title="What the numbers are telling you."
+          description="A continuous read across finance, inventory, marketing, social, and ops — distilled into what to do next."
+        />
+        <EmptyState icon={Sparkles} title="Nothing to advise on yet" message="Once you add real data — prices, inventory, marketing, social — the advisor surfaces your immediate issues, biggest opportunities, and an auto-generated weekly executive brief." hint="Add data to unlock insights" />
+      </>
+    );
+  }
   return (
     <>
       <PageIntro

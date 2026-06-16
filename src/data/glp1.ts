@@ -8,21 +8,10 @@ export interface Glp1Product {
   nurseCostMonthly: number;
 }
 
+// Real products, ZEROED — prices/costs are 0 until real figures are entered.
 export const glp1Products: Glp1Product[] = [
-  {
-    id: "semaglutide",
-    name: "Semaglutide",
-    programPrice: 399,
-    maintenanceMgPerMonth: 6,
-    nurseCostMonthly: 28,
-  },
-  {
-    id: "tirzepatide",
-    name: "Tirzepatide",
-    programPrice: 549,
-    maintenanceMgPerMonth: 12,
-    nurseCostMonthly: 28,
-  },
+  { id: "semaglutide", name: "Semaglutide", programPrice: 0, maintenanceMgPerMonth: 6, nurseCostMonthly: 0 },
+  { id: "tirzepatide", name: "Tirzepatide", programPrice: 0, maintenanceMgPerMonth: 12, nurseCostMonthly: 0 },
 ];
 
 export interface Vial {
@@ -36,13 +25,8 @@ export interface Vial {
   expires: string;
 }
 
-export const vials: Vial[] = [
-  { id: "sem-2401", productId: "semaglutide", lot: "SEM-2401", purchaseCost: 480, mgPurchased: 30, remainingMg: 12.5, supplier: "Empower Pharmacy", expires: "2026-09-14" },
-  { id: "sem-2402", productId: "semaglutide", lot: "SEM-2402", purchaseCost: 480, mgPurchased: 30, remainingMg: 27.0, supplier: "Empower Pharmacy", expires: "2026-11-02" },
-  { id: "sem-2403", productId: "semaglutide", lot: "SEM-2403", purchaseCost: 480, mgPurchased: 30, remainingMg: 30.0, supplier: "Empower Pharmacy", expires: "2027-01-20" },
-  { id: "tir-2403", productId: "tirzepatide", lot: "TIR-2403", purchaseCost: 700, mgPurchased: 50, remainingMg: 19.0, supplier: "AmeriPharma", expires: "2026-08-28" },
-  { id: "tir-2404", productId: "tirzepatide", lot: "TIR-2404", purchaseCost: 700, mgPurchased: 50, remainingMg: 46.0, supplier: "AmeriPharma", expires: "2026-12-09" },
-];
+// Cleared — awaiting real vial lots, costs, and mg (see the intake form).
+export const vials: Vial[] = [];
 
 // cost per mg = weighted average across that product's vials
 export const costPerMg = (productId: string) => {

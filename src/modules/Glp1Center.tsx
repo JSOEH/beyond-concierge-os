@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Syringe, Scale, Droplet, TrendingUp, Check, AlertTriangle, RotateCcw } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, EmptyState } from "@/components/ui";
 import { usd, money, num, pct } from "@/lib/format";
 import {
   glp1Products, vials as seedVials, costPerMg, patientEconomics, patients,
@@ -22,7 +22,20 @@ export default function Glp1Center() {
 
   const monthlyProgramProfit = econ.reduce((a, p) => a + p.profit, 0);
   const monthlyProgramRevenue = econ.reduce((a, p) => a + p.revenue, 0);
-  const avgMargin = +((monthlyProgramProfit / monthlyProgramRevenue) * 100).toFixed(1);
+  const avgMargin = monthlyProgramRevenue ? +((monthlyProgramProfit / monthlyProgramRevenue) * 100).toFixed(1) : 0;
+
+  if (glp1Products.every((p) => p.programPrice === 0) && vials.length === 0) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="GLP-1 Weight Loss Margin Center"
+          title="Cost per milligram. Profit per patient."
+          description="Track every vial down to the mg, and see true profit on each patient and program."
+        />
+        <EmptyState icon={Syringe} title="No GLP-1 data yet" message="Add your program prices, vial costs, mg per vial, and patient doses (via the intake form) to see cost-per-mg, profit per patient, and profit per vial." hint="Add GLP-1 figures via the intake form" />
+      </>
+    );
+  }
 
   const doseFromVial = (p: Glp1Patient) => {
     const mg = +(p.weeklyDoseMg).toFixed(2);

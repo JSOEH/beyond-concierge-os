@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Boxes, AlertTriangle, CalendarClock, Layers, TrendingUp, TrendingDown, DollarSign, Gem } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, Segmented } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, Segmented, EmptyState } from "@/components/ui";
 import { usd, usdCompact, num, pct } from "@/lib/format";
 import {
   inventory, itemValue, turnover, totalInventoryValue, lowStock, expiringSoon,
@@ -34,6 +34,19 @@ function MoverCard({ title, icon: Icon, rows, value, tone }: {
 export default function InventoryCenter() {
   const [cat, setCat] = useState<(typeof categories)[number]>("All");
   const rows = cat === "All" ? inventory : inventory.filter((i) => i.category === (cat as InvCategory));
+
+  if (!inventory.length) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Inventory Command Center"
+          title="Know what you have, before you run out."
+          description="Real-time stock, reorder alerts, expiry watch, and the movers that quietly make or cost you money."
+        />
+        <EmptyState icon={Boxes} title="No inventory yet" message="Add your products with stock, unit cost, reorder levels, and suppliers and this center lights up with alerts, expiry watch, and your fastest/slowest movers." hint="Add inventory via the intake form" />
+      </>
+    );
+  }
 
   return (
     <>

@@ -3,7 +3,7 @@ import {
   Handshake, Users, CalendarCheck, DollarSign, Dumbbell, Stethoscope, Star,
   Building2, Sparkles, Activity, FileText, Clock, ChevronRight,
 } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, EmptyState } from "@/components/ui";
 import { usd, num, pct, initials } from "@/lib/format";
 import {
   partners, partnerRoi, partnerConversion, crmTotals, followUpsDue,
@@ -19,8 +19,22 @@ const statusTone: Record<RelationshipStatus, "emerald" | "gold" | "rose" | "sky"
 };
 
 export default function CrmPartnerships() {
-  const [selId, setSelId] = useState(partners[0].id);
-  const sel = partners.find((p) => p.id === selId)!;
+  const [selId, setSelId] = useState(partners[0]?.id ?? "");
+  const sel = partners.find((p) => p.id === selId);
+
+  if (!partners.length || !sel) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="CRM & Partnership Management"
+          title="The relationships that send you patients."
+          description="Track every gym, doctor, influencer, and corporate partner by the revenue they actually drive."
+        />
+        <EmptyState icon={Handshake} title="No partners yet" message="Add your gyms, doctors, influencers, and corporate partners and we'll track the leads, appointments, and revenue each one drives." hint="Add partners via the intake form" />
+      </>
+    );
+  }
+
   const Icon = typeIcon[sel.type] ?? Handshake;
 
   return (

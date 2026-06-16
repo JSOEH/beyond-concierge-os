@@ -273,6 +273,33 @@ export function Stat({
   );
 }
 
+export function EmptyState({
+  icon: Icon,
+  title,
+  message,
+  hint,
+}: {
+  icon: LucideIcon;
+  title: string;
+  message: string;
+  hint?: string;
+}) {
+  return (
+    <Card className="flex flex-col items-center justify-center py-16 text-center">
+      <span className="grid h-14 w-14 place-items-center rounded-2xl border border-dashed border-charcoal-200 bg-paper-soft text-charcoal-300">
+        <Icon className="h-6 w-6" />
+      </span>
+      <h3 className="mt-4 font-display text-lg font-semibold text-charcoal-800">{title}</h3>
+      <p className="mt-1.5 max-w-md text-sm text-charcoal-400">{message}</p>
+      {hint && (
+        <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-gold-50 px-3 py-1.5 text-xs font-semibold text-gold-700">
+          {hint}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function PageIntro({
   eyebrow,
   title,

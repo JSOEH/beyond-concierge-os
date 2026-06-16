@@ -1,7 +1,7 @@
 import {
   Megaphone, Target, Users, TrendingUp, ArrowUpCircle, ArrowDownCircle, Minus,
 } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, EmptyState } from "@/components/ui";
 import { HBars } from "@/components/charts";
 import { usd, money, num, pct } from "@/lib/format";
 import {
@@ -13,6 +13,18 @@ const platformTone: Record<string, "gold" | "charcoal" | "sky" | "rose"> = {
 };
 
 export default function AdvertisingCenter() {
+  if (!campaignMetrics.length) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Advertising Command Center"
+          title="Every ad dollar, traced to revenue."
+          description="Spend, leads, appointments, and ROAS by campaign and platform — with a clear call on where the budget should move."
+        />
+        <EmptyState icon={Megaphone} title="No campaigns connected" message="Connect Meta, Google, TikTok, and YouTube Ads (or send the numbers) to see spend, cost per lead, cost per appointment, ROAS, and budget recommendations." hint="Connect ad accounts or send the data" />
+      </>
+    );
+  }
   return (
     <>
       <PageIntro

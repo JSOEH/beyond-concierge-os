@@ -5,7 +5,7 @@ import {
 import {
   Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, Delta, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, Delta, ProgressBar, EmptyState } from "@/components/ui";
 import { num, pct } from "@/lib/format";
 import { palette, tooltipStyle } from "@/lib/theme";
 import { seoSummary, trafficTrend, keywords, topPages, worstPages, seoIssues, gbp } from "@/data/seo";
@@ -17,6 +17,18 @@ const sevMap = {
 };
 
 export default function SeoCenter() {
+  if (!keywords.length && !trafficTrend.length && seoSummary.organicTraffic === 0) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Website & SEO Command Center"
+          title="Your storefront, measured."
+          description="Traffic, rankings, and the Google Business Profile that actually drives calls and bookings."
+        />
+        <EmptyState icon={Globe} title="No SEO data connected" message="Connect Google Analytics, Search Console, and your Google Business Profile (or send the numbers) to see traffic, keyword rankings, top/worst pages, and a prioritized fix-list." hint="Connect analytics or send the data" />
+      </>
+    );
+  }
   return (
     <>
       <PageIntro

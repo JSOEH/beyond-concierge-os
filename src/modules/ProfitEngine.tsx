@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Gem, TrendingUp, Percent, Flame, AlertTriangle, ArrowUpDown } from "lucide-react";
-import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar } from "@/components/ui";
+import { Card, KpiCard, PageIntro, SectionHeader, Badge, ProgressBar, EmptyState } from "@/components/ui";
 import { usd, num, pct } from "@/lib/format";
 import { type Service, MARGIN_FLOOR } from "@/data/services";
 import { useServices } from "@/store/useData";
@@ -65,6 +65,19 @@ export default function ProfitEngine() {
       return dir * ((av as number) - (bv as number));
     });
   }, [services, sort, dir]);
+
+  if (totalMonthlyRevenue === 0) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Profit Engine"
+          title="Every service, fully costed."
+          description="Retail minus product, nurse, labor, and card fees — so you see real profit and margin on every line."
+        />
+        <EmptyState icon={Gem} title="No pricing entered yet" message="Add each service's retail price, product cost, nurse cost, labor, and monthly volume in Owner Studio → Live Pricing. Margins, profit, and rankings calculate automatically." hint="Add your prices in Owner Studio → Live Pricing" />
+      </>
+    );
+  }
 
   const selected = services.find((s) => s.id === selectedId) ?? services[0];
   const blendedMargin = +((totalMonthlyProfit / totalMonthlyRevenue) * 100).toFixed(1);
