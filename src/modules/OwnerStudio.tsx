@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   ClipboardList, Plus, Trash2, Copy, Mail, Check, RotateCcw, Sparkles,
-  CircleDot, Clock, CheckCircle2, DollarSign, Wand2, Send,
+  CircleDot, Clock, CheckCircle2, DollarSign, Wand2, Send, Download,
 } from "lucide-react";
 import { Card, PageIntro, SectionHeader, Badge, Segmented, KpiCard } from "@/components/ui";
 import { usd, num, pct } from "@/lib/format";
@@ -171,15 +171,28 @@ function RequestsView() {
 }
 
 // ── Live Pricing view ───────────────────────────────────────────────────────
+const serviceCategories = ["Injectables", "Body", "IV & NAD", "Weight Loss", "Concierge", "Membership"] as const;
+
 function PricingView() {
   const { services, totalMonthlyRevenue, totalMonthlyProfit } = useServices();
   const setServiceField = useData((s) => s.setServiceField);
   const setPnlField = useData((s) => s.setPnlField);
+  const addService = useData((s) => s.addService);
+  const removeService = useData((s) => s.removeService);
   const resetAll = useData((s) => s.resetAll);
   const pnl = useData((s) => s.pnl);
   const overrides = useData((s) => s.serviceOverrides);
   const overrideCount = countServiceOverrides(overrides);
   const blended = totalMonthlyRevenue ? +((totalMonthlyProfit / totalMonthlyRevenue) * 100).toFixed(1) : 0;
+
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newCat, setNewCat] = useState<(typeof serviceCategories)[number]>("Injectables");
+  const submitService = () => {
+    if (!newName.trim()) return;
+    addService(newName.trim(), newCat);
+    setNewName(""); setAdding(false);
+  };
 
   const fieldVal = (kind: string, v: number) => (kind === "pct" ? +(v * 100).toFixed(2) : v);
   const setPnl = (k: keyof PnlInputs, raw: string, kind: string) => {
@@ -212,7 +225,21 @@ function PricingView() {
 
       {/* Service price editor */}
       <Card pad={false}>
-        <div className="p-5 sm:p-6"><SectionHeader eyebrow="Per service" title="Service Pricing" description="Edit any cell. Card fees auto-calculate. Margin and profit update live." /></div>
+        <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <SectionHeader eyebrow="Per service" title="Service Pricing" description="Edit any cell. Card fees auto-calculate. Add any service you offer." />
+          <button onClick={() => setAdding((a) => !a)} className="btn-gold h-9 shrink-0 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> Add service</button>
+        </div>
+        {adding && (
+          <div className="flex flex-wrap items-center gap-2 border-y border-charcoal-100 bg-paper-soft px-5 py-3 sm:px-6">
+            <input autoFocus value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submitService()} placeholder="New service name" className="input max-w-xs" />
+            <select value={newCat} onChange={(e) => setNewCat(e.target.value as any)} className="input max-w-[10rem]">
+              {serviceCategories.map((c) => <option key={c}>{c}</option>)}
+            </select>
+            <button onClick={submitService} className="btn-primary h-9 py-0 text-xs"><Check className="h-3.5 w-3.5" /> Add</button>
+            <button onClick={() => setAdding(false)} className="btn-ghost h-9 py-0 text-xs">Cancel</button>
+            <span className="text-xs text-charcoal-400">It appears below at $0 — fill in the numbers.</span>
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -227,8 +254,13 @@ function PricingView() {
               {services.map((s) => (
                 <tr key={s.id} className="border-b border-charcoal-50">
                   <td className="px-3 py-2.5 pl-5 sm:pl-6">
-                    <div className="font-medium text-charcoal-800">{s.name}</div>
-                    <div className="text-[11px] text-charcoal-400">{s.category}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium text-charcoal-800">{s.name}</span>
+                      {s.id.startsWith("custom-") && (
+                        <button onClick={() => removeService(s.id)} className="text-charcoal-300 hover:text-rose-deep" title="Remove service"><Trash2 className="h-3.5 w-3.5" /></button>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-charcoal-400">{s.category}{s.id.startsWith("custom-") ? " · added" : ""}</div>
                   </td>
                   {editableFields.map((f) => (
                     <td key={f.key} className="px-2 py-2.5 text-right">
@@ -290,11 +322,14 @@ export default function OwnerStudio() {
         action={<Segmented options={["Change Requests", "Live Pricing"] as const} value={view} onChange={setView} />}
       />
 
-      <Card className="flex items-center gap-3 border-charcoal-800 bg-charcoal-deep text-white">
+      <Card className="flex flex-col gap-3 border-charcoal-800 bg-charcoal-deep text-white sm:flex-row sm:items-center">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-gold-300"><Wand2 className="h-5 w-5" /></span>
-        <p className="text-sm text-charcoal-100">
+        <p className="flex-1 text-sm text-charcoal-100">
           <span className="font-semibold text-white">How this works:</span> log changes or edit prices here — they save in your browser. Hit <span className="font-semibold text-gold-200">Email all to team</span> or <span className="font-semibold text-gold-200">Copy brief</span> and our team ships the update, then redeploys the live site.
         </p>
+        <a href={`${import.meta.env.BASE_URL}Beyond-Concierge-Data-Intake.pdf`} target="_blank" rel="noopener" className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gold-sheen px-3.5 py-2 text-xs font-bold text-charcoal-900 hover:brightness-105">
+          <Download className="h-4 w-4" /> Download intake form
+        </a>
       </Card>
 
       {view === "Change Requests" ? <RequestsView /> : <PricingView />}

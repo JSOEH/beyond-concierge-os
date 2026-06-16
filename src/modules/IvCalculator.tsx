@@ -1,16 +1,38 @@
 import { useMemo, useState } from "react";
-import { FlaskConical, Plus, Minus, Droplets, Syringe, Check, RotateCcw, AlertTriangle } from "lucide-react";
+import { FlaskConical, Plus, Minus, Droplets, Syringe, Check, RotateCcw, AlertTriangle, Trash2 } from "lucide-react";
 import { Card, KpiCard, PageIntro, SectionHeader, Badge, Segmented, ProgressBar } from "@/components/ui";
 import { money, usd, pct } from "@/lib/format";
 import {
-  recipes, allIvItems, ivItemById, SUPPLY_COST, DEFAULT_NURSE_RATE, DEFAULT_DRIP_MINUTES, type RecipeLine,
+  recipes, allIvItems, SUPPLY_COST, DEFAULT_NURSE_RATE, DEFAULT_DRIP_MINUTES,
+  type RecipeLine, type Ingredient,
 } from "@/data/iv";
 import { useInventory } from "@/store/useInventory";
+import { useData } from "@/store/useData";
 
 export default function IvCalculator() {
   const ivStock = useInventory((s) => s.ivStock);
   const dispenseCustom = useInventory((s) => s.dispenseCustom);
   const reset = useInventory((s) => s.reset);
+
+  const customIngredients = useData((s) => s.customIngredients);
+  const addIngredient = useData((s) => s.addIngredient);
+  const removeIngredient = useData((s) => s.removeIngredient);
+  const items: Ingredient[] = useMemo(
+    () => [...allIvItems, ...customIngredients.map((c) => ({ ...c, stock: 0, reorderLevel: 0 }))],
+    [customIngredients],
+  );
+  const itemById = (id: string) => items.find((i) => i.id === id);
+
+  const [addingIng, setAddingIng] = useState(false);
+  const [ingName, setIngName] = useState("");
+  const [ingUnit, setIngUnit] = useState("mL");
+  const [ingCost, setIngCost] = useState("");
+  const [ingSupplier, setIngSupplier] = useState("");
+  const submitIngredient = () => {
+    if (!ingName.trim()) return;
+    addIngredient(ingName.trim(), ingUnit.trim() || "mL", parseFloat(ingCost) || 0, ingSupplier.trim());
+    setIngName(""); setIngCost(""); setIngSupplier(""); setAddingIng(false);
+  };
 
   const [recipeId, setRecipeId] = useState(recipes[0].id);
   const [lines, setLines] = useState<RecipeLine[]>(recipes[0].lines.map((l) => ({ ...l })));
@@ -38,14 +60,14 @@ export default function IvCalculator() {
   const { ingredientCost, bagCost } = useMemo(() => {
     let ing = 0, bag = 0;
     for (const l of lines) {
-      const item = ivItemById(l.ingredientId);
+      const item = itemById(l.ingredientId);
       if (!item) continue;
       const c = item.unitCost * l.amount;
       if (item.id === "saline-bag") bag += c;
       else ing += c;
     }
     return { ingredientCost: +ing.toFixed(2), bagCost: +bag.toFixed(2) };
-  }, [lines]);
+  }, [lines, items]);
 
   const nurseLabor = +((DEFAULT_NURSE_RATE / 60) * nurseMinutes).toFixed(2);
   const totalCost = +(ingredientCost + bagCost + SUPPLY_COST + nurseLabor).toFixed(2);
@@ -53,7 +75,7 @@ export default function IvCalculator() {
   const margin = retail > 0 ? +((grossProfit / retail) * 100).toFixed(1) : 0;
 
   const available = lines.every((l) => (ivStock[l.ingredientId] ?? 0) >= l.amount);
-  const unusedIngredients = allIvItems.filter((i) => !lines.some((l) => l.ingredientId === i.id));
+  const unusedIngredients = items.filter((i) => !lines.some((l) => l.ingredientId === i.id));
 
   const onDispense = () => {
     if (!available) return;
@@ -82,7 +104,7 @@ export default function IvCalculator() {
           <SectionHeader eyebrow="Formula" title="Ingredients" description="Tap +/− to titrate. Cost recalculates instantly." />
           <div className="mt-4 space-y-2">
             {lines.map((l) => {
-              const item = ivItemById(l.ingredientId)!;
+              const item = itemById(l.ingredientId)!;
               const stock = ivStock[l.ingredientId] ?? 0;
               const short = stock < l.amount;
               const low = stock <= item.reorderLevel;
@@ -114,18 +136,32 @@ export default function IvCalculator() {
             })}
           </div>
 
-          {unusedIngredients.length > 0 && (
-            <div className="mt-4">
-              <div className="eyebrow mb-2">Add ingredient</div>
-              <div className="flex flex-wrap gap-1.5">
-                {unusedIngredients.map((i) => (
-                  <button key={i.id} onClick={() => addLine(i.id)} className="pill border border-charcoal-200 bg-white text-charcoal-600 hover:border-gold-400 hover:text-charcoal-900">
-                    <Plus className="h-3 w-3" /> {i.name}
-                  </button>
-                ))}
-              </div>
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="eyebrow">Add to drip</span>
+              <button onClick={() => setAddingIng((a) => !a)} className="inline-flex items-center gap-1 text-xs font-semibold text-gold-700 hover:text-gold-600"><Plus className="h-3.5 w-3.5" /> New ingredient</button>
             </div>
-          )}
+            {addingIng && (
+              <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl bg-paper-soft p-2.5">
+                <input autoFocus value={ingName} onChange={(e) => setIngName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submitIngredient()} placeholder="Ingredient name" className="input max-w-[10rem]" />
+                <input value={ingCost} onChange={(e) => setIngCost(e.target.value)} inputMode="decimal" placeholder="$/unit" className="input w-20" />
+                <input value={ingUnit} onChange={(e) => setIngUnit(e.target.value)} placeholder="unit" className="input w-16" />
+                <input value={ingSupplier} onChange={(e) => setIngSupplier(e.target.value)} placeholder="supplier" className="input max-w-[9rem]" />
+                <button onClick={submitIngredient} className="btn-primary h-9 py-0 text-xs"><Check className="h-3.5 w-3.5" /> Add</button>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-1.5">
+              {unusedIngredients.map((i) => {
+                const custom = i.id.startsWith("civ-");
+                return (
+                  <span key={i.id} className="pill border border-charcoal-200 bg-white text-charcoal-600">
+                    <button onClick={() => addLine(i.id)} className="inline-flex items-center gap-1 hover:text-charcoal-900"><Plus className="h-3 w-3" /> {i.name}</button>
+                    {custom && <button onClick={() => removeIngredient(i.id)} className="ml-0.5 text-charcoal-300 hover:text-rose-deep" title="Remove from catalog"><Trash2 className="h-3 w-3" /></button>}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
 
           <div className="mt-5 flex items-center gap-4 rounded-xl bg-paper-soft p-3">
             <Syringe className="h-4 w-4 text-charcoal-500" />
@@ -183,7 +219,7 @@ export default function IvCalculator() {
             <SectionHeader eyebrow="Stock impact" title="After this drip" />
             <div className="mt-3 space-y-2.5">
               {lines.map((l) => {
-                const item = ivItemById(l.ingredientId)!;
+                const item = itemById(l.ingredientId)!;
                 const stock = ivStock[l.ingredientId] ?? 0;
                 const after = Math.max(0, stock - l.amount);
                 return (

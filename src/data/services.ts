@@ -129,8 +129,11 @@ export interface ServiceModel {
   totalMonthlyProfit: number;
 }
 
-export function deriveServices(overrides: ServiceOverrides = {}): ServiceModel {
-  const list = baseServices.map((s) =>
+export function deriveServices(
+  overrides: ServiceOverrides = {},
+  extra: ServiceInput[] = [],
+): ServiceModel {
+  const list = [...baseServices, ...extra].map((s) =>
     computeService({ ...s, ...(overrides[s.id] ?? {}) }),
   );
   return {
