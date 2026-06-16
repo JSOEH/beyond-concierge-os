@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import {
   DollarSign, TrendingUp, Percent, Receipt, Users, UserPlus,
-  Repeat, Gem, Quote, ArrowRight,
+  Repeat, Gem,
 } from "lucide-react";
 import { Card, KpiCard, PageIntro, SectionHeader, Segmented, Delta, ProgressBar } from "@/components/ui";
 import { DualArea, MixDonut, TrendArea, HBars } from "@/components/charts";
@@ -39,27 +38,6 @@ export default function ExecutiveSnapshot() {
         description="One source of truth across finance, operations, marketing, and growth — updated for June 2026."
         action={<Segmented options={periods} value={period} onChange={setPeriod} />}
       />
-
-      {/* Advisor money-quote */}
-      <Card className="relative overflow-hidden border-charcoal-800 bg-charcoal-deep text-white">
-        <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-gold-500/15 blur-3xl" />
-        <div className="flex items-start gap-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-gold-300">
-            <Quote className="h-5 w-5" />
-          </span>
-          <div>
-            <div className="eyebrow text-gold-200/80">The story this month</div>
-            <p className="mt-1 max-w-3xl font-display text-lg leading-snug text-white sm:text-xl">
-              You don't have a demand problem — you have a margin, capacity, and consistency
-              problem. The fastest dollars are in supply discipline and doubling down on what
-              already converts.
-            </p>
-            <Link to="/advisor" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300 hover:text-gold-200">
-              See the AI Advisor breakdown <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </Card>
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

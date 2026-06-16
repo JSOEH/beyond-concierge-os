@@ -118,7 +118,7 @@ export const opportunities = insights.filter((i) => i.kind === "opportunity");
 export const recommendations = insights.filter((i) => i.kind === "recommendation");
 
 export const weeklyBrief = {
-  headline: "Margins are healthy and demand is climbing — the bottleneck is supply and consistency, not sales.",
+  headline: "",
   generated: "2026-06-10",
   points: [
     `Revenue run-rate is at a 12-month high with a ${glp1Products.length}-product GLP-1 line now driving the largest recurring segment.`,

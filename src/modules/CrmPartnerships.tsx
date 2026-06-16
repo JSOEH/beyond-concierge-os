@@ -99,7 +99,7 @@ export default function CrmPartnerships() {
           </div>
 
           <div className="mt-4 space-y-3 border-t border-charcoal-100 pt-4 text-sm">
-            <div className="flex items-start gap-2.5"><FileText className="mt-0.5 h-4 w-4 shrink-0 text-charcoal-400" /><p className="text-charcoal-600">{sel.notes}</p></div>
+            {sel.notes && <div className="flex items-start gap-2.5"><FileText className="mt-0.5 h-4 w-4 shrink-0 text-charcoal-400" /><p className="text-charcoal-600">{sel.notes}</p></div>}
             <div className="flex items-center justify-between rounded-xl bg-gold-50 px-3 py-2.5">
               <span className="flex items-center gap-2 text-sm font-medium text-charcoal-700"><Clock className="h-4 w-4 text-gold-600" /> Next follow-up</span>
               <span className="num text-sm font-semibold text-charcoal-900">{sel.nextFollowUp}</span>

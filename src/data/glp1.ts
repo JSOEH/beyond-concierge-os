@@ -64,14 +64,14 @@ export interface Glp1Patient {
 }
 
 export const patients: Glp1Patient[] = [
-  { id: "p1", name: "Marlene Ortiz", productId: "semaglutide", weeklyDoseMg: 1.0, monthsActive: 5 },
-  { id: "p2", name: "Devin Walsh", productId: "semaglutide", weeklyDoseMg: 1.7, monthsActive: 3 },
-  { id: "p3", name: "Priya Nair", productId: "semaglutide", weeklyDoseMg: 2.0, monthsActive: 7 },
-  { id: "p4", name: "Carla Jensen", productId: "semaglutide", weeklyDoseMg: 0.5, monthsActive: 1 },
-  { id: "p5", name: "Tom Bradley", productId: "tirzepatide", weeklyDoseMg: 5.0, monthsActive: 4 },
-  { id: "p6", name: "Renee Fox", productId: "tirzepatide", weeklyDoseMg: 7.5, monthsActive: 6 },
-  { id: "p7", name: "Aaron Pike", productId: "tirzepatide", weeklyDoseMg: 2.5, monthsActive: 2 },
-  { id: "p8", name: "Sofia Reyes", productId: "tirzepatide", weeklyDoseMg: 10.0, monthsActive: 8 },
+  { id: "p1", name: "Patient 1", productId: "semaglutide", weeklyDoseMg: 1.0, monthsActive: 5 },
+  { id: "p2", name: "Patient 2", productId: "semaglutide", weeklyDoseMg: 1.7, monthsActive: 3 },
+  { id: "p3", name: "Patient 3", productId: "semaglutide", weeklyDoseMg: 2.0, monthsActive: 7 },
+  { id: "p4", name: "Patient 4", productId: "semaglutide", weeklyDoseMg: 0.5, monthsActive: 1 },
+  { id: "p5", name: "Patient 5", productId: "tirzepatide", weeklyDoseMg: 5.0, monthsActive: 4 },
+  { id: "p6", name: "Patient 6", productId: "tirzepatide", weeklyDoseMg: 7.5, monthsActive: 6 },
+  { id: "p7", name: "Patient 7", productId: "tirzepatide", weeklyDoseMg: 2.5, monthsActive: 2 },
+  { id: "p8", name: "Patient 8", productId: "tirzepatide", weeklyDoseMg: 10.0, monthsActive: 8 },
 ];
 
 export interface PatientEconomics extends Glp1Patient {

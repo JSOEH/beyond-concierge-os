@@ -53,7 +53,9 @@ export default function AiAdvisor() {
           <Badge tone="gold" dot>Auto-generated</Badge>
         </div>
 
-        <p className="mt-4 max-w-3xl font-display text-xl leading-snug text-white">{weeklyBrief.headline}</p>
+        {weeklyBrief.headline && (
+          <p className="mt-4 max-w-3xl font-display text-xl leading-snug text-white">{weeklyBrief.headline}</p>
+        )}
 
         <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>

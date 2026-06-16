@@ -22,28 +22,7 @@ export const reqAreas = [
   "Branding / Theme", "Whole Dashboard", "Other",
 ];
 
-const seed: ChangeRequest[] = [
-  {
-    id: "ex-1",
-    title: "Use our real Botox pricing",
-    detail: "We charge $12/unit and average ~35 units. Update the Profit Engine so margins are accurate.",
-    area: "Profit Engine",
-    type: "Pricing",
-    priority: "High",
-    status: "Open",
-    createdAt: Date.now() - 1000 * 60 * 60 * 26,
-  },
-  {
-    id: "ex-2",
-    title: "Add our med-spa logo to the top",
-    detail: "Swap the placeholder 'B' mark for our actual logo and match the gold to our brand gold.",
-    area: "Branding / Theme",
-    type: "Fix",
-    priority: "Medium",
-    status: "Open",
-    createdAt: Date.now() - 1000 * 60 * 60 * 4,
-  },
-];
+const seed: ChangeRequest[] = [];
 
 interface RequestState {
   requests: ChangeRequest[];

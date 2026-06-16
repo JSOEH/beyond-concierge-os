@@ -11,12 +11,12 @@ export interface Campaign {
 }
 
 export const campaigns: Campaign[] = [
-  { id: "m1", platform: "Meta", name: "Semaglutide — Lead Gen", spend: 4200, leads: 168, appointments: 71, revenue: 28400 },
-  { id: "m2", platform: "Meta", name: "IV Therapy — Retargeting", spend: 1850, leads: 94, appointments: 58, revenue: 10700 },
-  { id: "g1", platform: "Google", name: "Botox — Search", spend: 3100, leads: 86, appointments: 44, revenue: 21100 },
-  { id: "g2", platform: "Google", name: "Concierge — Search", spend: 1600, leads: 38, appointments: 21, revenue: 9800 },
-  { id: "t1", platform: "TikTok", name: "ThinWorks — Awareness", spend: 2400, leads: 61, appointments: 19, revenue: 7600 },
-  { id: "y1", platform: "YouTube", name: "Brand Story — Pre-roll", spend: 1100, leads: 17, appointments: 6, revenue: 2900 },
+  { id: "m1", platform: "Meta", name: "Meta Campaign 1", spend: 4200, leads: 168, appointments: 71, revenue: 28400 },
+  { id: "m2", platform: "Meta", name: "Meta Campaign 2", spend: 1850, leads: 94, appointments: 58, revenue: 10700 },
+  { id: "g1", platform: "Google", name: "Google Campaign 1", spend: 3100, leads: 86, appointments: 44, revenue: 21100 },
+  { id: "g2", platform: "Google", name: "Google Campaign 2", spend: 1600, leads: 38, appointments: 21, revenue: 9800 },
+  { id: "t1", platform: "TikTok", name: "TikTok Campaign 1", spend: 2400, leads: 61, appointments: 19, revenue: 7600 },
+  { id: "y1", platform: "YouTube", name: "YouTube Campaign 1", spend: 1100, leads: 17, appointments: 6, revenue: 2900 },
 ];
 
 export interface CampaignMetrics extends Campaign {
@@ -77,8 +77,8 @@ export interface BudgetRec {
   detail: string;
 }
 export const budgetRecs: BudgetRec[] = [
-  { campaign: "Semaglutide — Lead Gen", action: "increase", detail: "6.8× ROAS and lowest CPA — shift +$2k and scale lookalikes." },
-  { campaign: "Botox — Search", action: "increase", detail: "6.8× ROAS on high-intent search — raise daily cap, add exact-match." },
-  { campaign: "ThinWorks — Awareness", action: "decrease", detail: "3.2× ROAS, weak booking rate — trim 30% and refresh creative." },
-  { campaign: "Brand Story — Pre-roll", action: "decrease", detail: "2.6× ROAS — pause or reallocate to retargeting." },
+  { campaign: "Google Campaign 1", action: "increase", detail: "6.8× ROAS on high-intent search — raise daily cap, add exact-match." },
+  { campaign: "Meta Campaign 1", action: "increase", detail: "6.8× ROAS and lowest CPA — shift +$2k and scale lookalikes." },
+  { campaign: "TikTok Campaign 1", action: "decrease", detail: "3.2× ROAS, weak booking rate — trim 30% and refresh creative." },
+  { campaign: "YouTube Campaign 1", action: "decrease", detail: "2.6× ROAS — pause or reallocate to retargeting." },
 ];

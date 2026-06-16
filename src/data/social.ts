@@ -51,7 +51,7 @@ export const contentCalendar: CalendarPost[] = [
   { id: "c1", day: "Mon", channel: "Instagram", title: "Patient glow-up before/after", type: "Reel", status: "posted" },
   { id: "c2", day: "Mon", channel: "TikTok", title: "What's actually in our IV drips", type: "Video", status: "posted" },
   { id: "c3", day: "Tue", channel: "Instagram", title: "Semaglutide myth-busting", type: "Carousel", status: "posted" },
-  { id: "c4", day: "Wed", channel: "Facebook", title: "Member spotlight: Renee", type: "Post", status: "missed" },
+  { id: "c4", day: "Wed", channel: "Facebook", title: "Member spotlight", type: "Post", status: "missed" },
   { id: "c5", day: "Wed", channel: "YouTube", title: "Concierge day-in-the-life", type: "Video", status: "scheduled" },
   { id: "c6", day: "Thu", channel: "Instagram", title: "NAD+ energy explainer", type: "Reel", status: "scheduled" },
   { id: "c7", day: "Fri", channel: "TikTok", title: "Nurse Q&A: Botox aftercare", type: "Video", status: "scheduled" },
